@@ -1,0 +1,196 @@
+<html>
+<head>
+  <title>Simple To-DO List</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.css">
+  <link rel="stylesheet" href="css/fullcalendar.min.css">
+  <style>
+    #calendar {
+      max-width: 900px;
+      margin: 0 auto;
+      margin-top: 70px;
+    }
+  </style>
+</head>
+
+<body class="well">
+  <div id="container">
+    <h2>Filter</h2>
+    <div id="filters" class="button-group">  <button class="button is-checked" data-filter="*">show all</button>
+      <button class="button" data-filter="hi">hi</button>
+      <button class="button" data-filter="class">class</button>
+      <button class="button" data-filter="bye">byes</button>
+    </div>
+    <div id="header"> To Do List </div>
+
+    <div class="task-list" id="sort">
+
+     <h3>To Do-List</h3>
+
+   </div>
+
+   <div class="task-list task-container" id="completed">
+     <h3> Drag to Complete</h3>
+   </div>
+
+   <div class="task-list" >
+    <h3>Add a task</h3>
+
+    <form id="todo-form">
+      <input type="hidden" class="clicked-index" value="">
+      <input type="hidden" class="id" value="">
+      <input type="text" placeholder="Title" class="title"/>
+
+      <textarea placeholder="Description" class="description"></textarea>
+
+      <input type="text" id="datepicker" class="date" placeholder="Due Date (dd/mm/yyyy)" />
+      <input type="text" placeholder="Tag" class="tag"/>
+
+      <input type="button" class="btn btn-primary" value="Add Task" id="add_btn" /> <!-- onclick="todo.add();" -->
+      <input type="button" class="btn btn-primary" value="Edit Task" id="edit_btn" /> 
+    </form>
+
+    <input type="button" class="btn btn-primary" value="Clear Data" id="clear_btn"/> <!--onclick="todo.clear(); -->" 
+
+  </div>
+
+  <div style="clear:both;"></div>
+  <div id='calendar'></div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/fullcalendar.js"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.1/isotope.pkgd.js'></script>
+  <script type="text/javascript" src="main.js"></script>
+
+  <script type="text/javascript">
+   var storedNames = JSON.parse(localStorage.getItem("array"));
+   console.log(storedNames);
+   $( "#datepicker" ).datepicker();
+   $( "#datepicker" ).datepicker("option", "dateFormat", "yy-mm-dd");
+   $( "#sort" ).sortable({
+    stop: function() {
+      var id = [];
+      $.each($('.todo-task'),function(index, element){
+        id.push(element.id);
+      });
+          // console.log(id);
+          
+          var storedNames = JSON.parse(localStorage.getItem("array"));
+          // console.log(storedNames);
+          
+          var sorted=[];
+          for(var i=0;i< id.length;i++){
+            for(var j=0;j< storedNames.length;j++){
+              if(id[i]==storedNames[j].id){
+                sorted.push(storedNames[j]);
+              }
+            }
+          }          
+          localStorage.setItem("array", JSON.stringify(sorted));
+
+
+
+        }
+
+
+
+      });
+   $( "#sort" ).disableSelection();
+   $("#sort").sortable({connectWith: "#completed"});
+
+   $("#completed").sortable({connectWith: "#sort",
+    receive: function(id) {
+      alert(this.id);
+
+
+
+
+    }});
+
+
+
+   $('#calendar').fullCalendar({
+    header: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'month,basicWeek,basicDay'
+    },
+    defaultDate: '2016-08-12',
+    editable: true,
+      eventLimit: true, // allow "more" link when too many events
+      events: storedNames
+    });  
+
+   var $grid = $('.task-list').isotope({
+        // options
+        itemSelector: '.todo-task',
+        layoutMode: 'vertical'
+      });
+
+   var todoFilter = {
+    hi: function() {
+      var tag = $(this).find('.task-tags').text();
+      console.log($(this));
+      console.log('todo');
+      return tag.match(/hi/g);
+
+    },
+    bye: function() {
+      var tag = $(this).find('.task-tags').text();
+      return tag.match(/bye/g);
+
+    },
+    class: function() {
+      var tag = $(this).find('.task-tags').text();
+      return tag.match(/class/g);
+
+    }
+  };
+      // bind filter button click
+      $('#filters').on( 'click', 'button', function() {
+        var filterValue = $( this ).attr('data-filter');
+        
+        console.log(filterValue);
+        // use filterFn if matches value
+        filterValue = todoFilter[ filterValue ] || filterValue;
+        console.log(filterValue);
+        $grid.isotope({ filter: filterValue });
+      });
+      
+
+    </script>
+
+
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
